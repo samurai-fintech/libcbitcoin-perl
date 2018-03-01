@@ -218,7 +218,14 @@ sub generateMnemonic($$){
 	}
 	
 	my $entropy;
-	open(my $fh,'<','/dev/random') || print "Bail out!\n";
+	my $randfp = '/dev/random';
+	if(defined $ENV{'DEVRANDOM'} && $ENV{'DEVRANDOM'} =~ m/^([0-9a-zA-Z\_\-\.\/]+)$/){
+		$randfp = $1;
+	}
+	elsif(defined $ENV{'DEVRANDOM'}){
+		die "bad dev random";
+	}
+	open(my $fh,'<',$randfp) || print "Bail out!\n";
 	my ($m,$n) = (0,$strength / 8);
 	while(0 < $n - $m){
 		$m += sysread($fh,$entropy,$n - $m, $m);
