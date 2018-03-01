@@ -144,8 +144,14 @@ sub generate {
 		$this = picocoin_generatehdkeymaster($seed,$vers);
 	}
 	elsif(!defined $seed){
-		# get 32 bytes from /dev/random (we might block here)
-		open(my $fh,'<','/dev/random') || die "cannot read any safe random bytes";
+		my $randfp = '/dev/random';
+		if(defined $ENV{'DEVRANDOM'} && $ENV{'DEVRANDOM'} =~ m/^([0-9a-zA-Z\_\-\.\/]+)$/){
+			$randfp = $1;
+		}
+		elsif(defined $ENV{'DEVRANDOM'}){
+			die "bad dev random";
+		}
+		open(my $fh,'<',$randfp) || die "cannot read any safe random bytes";
 		binmode($fh);
 		my ($n,$m) = (32,0);
 		while(0 < $n - $m){
